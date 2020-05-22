@@ -1,0 +1,15 @@
+
+scale=2.0
+perfil=70.0
+in(pdb,file="/home/petra/Desktop/p2rank_dna/dna_datasets/eval/1LFU.pdb")
+in(siz,file="./delphi_parameters/charmm.siz")
+in(crg,file="./delphi_parameters/charmm.crg")
+indi=2.0
+exdi=80.0
+prbrad=1.4
+salt=0.00
+bndcon=2
+maxc=0.0001
+linit=800
+out(phi,file="../dna_datasets/1LFU/1LFU.cube", format=cube)
+energy(s,c,g)
