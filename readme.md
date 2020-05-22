@@ -15,7 +15,7 @@
 
 For more information use delphi compilation manual (v8.2): http://compbio.clemson.edu/downloadDir/delphi/delphi_compilation_man_for_v8.2.pdf
 
-## Compile APBS and PDB2PQR
+## Use APBS and PDB2PQR
 1. download APBS and PDB2PQR from SourceForge:
   - APBS: https://sourceforge.net/projects/apbs/
   - PDB2PQR: https://sourceforge.net/projects/pdb2pqr/
