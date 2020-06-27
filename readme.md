@@ -16,13 +16,31 @@
 For more information use delphi compilation manual (v8.2): http://compbio.clemson.edu/downloadDir/delphi/delphi_compilation_man_for_v8.2.pdf
 
 ## Use APBS and PDB2PQR
-1. download APBS and PDB2PQR from SourceForge:
-  - APBS: https://sourceforge.net/projects/apbs/
+
+### Set PDB2PQR
+1. download PDB2PQR from SourceForge:
   - PDB2PQR: https://sourceforge.net/projects/pdb2pqr/
-2. set relative path to PDB2PQR in PDB2PQR variable in electorstatic_potential.sh
-3. set relative path to APBS in APBS variable in electrostatic_potential.sh
+2. set relative path to PDB2PQR to PDB2PQR variable in electorstatic_potential.sh
+
+### Compile APBS (for Linux)
+1. git clone git@github.com:Electrostatics/apbs-pdb2pqr.git
+2. check if you are using
+  - cmake
+  - python3 for file.cube results of apbs
+3. cd apbs-pdb2pqr
+
+4. git submodule init
+5. git submodule update
+
+6. cd apbs
+7. mkdir build
+8. cd  build
+9. cmake -DENABLE_PYTHON=ON -DCMAKE_C_FLAGS="-fPIC" -DBUILD_SHARED_LIBS=OFF ..
+10. cmake --build .
+11. set relative path to APBS(apbs-pdb2pqr/apbs/build/bin) to APBS variable in electorstatic_potential.sh
 
 For more information use APBS and PDB2PQR documentation: http://server.poissonboltzmann.org/documentation
+
 
 ## Usage
 ~~~

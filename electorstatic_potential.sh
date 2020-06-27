@@ -2,10 +2,11 @@
 
 
 DELPHI="../Delphicpp_v8.4.3_Linux/Release"
-APBS="../APBS/bin"
-PDB2PQR="../pdb2pqr/"
+APBS="../apbs-pdb2pqr/apbs/build/bin"
+#PDB2PQR="../apbs-pdb2pqr/pdb2pqr"
+PDB2PQR="../pdb2pqr-linux-bin64-2.1.0"
 
-FILE="/home/petra/Desktop/p2rank_dna/dna_datasets/eval/1LFU.pdb"
+FILE="../dna_datasets/eval/1lfu.pdb"
 OUTPUT="results"
 LIBRARY="delphi"
 FORCEFIELD="amber"
@@ -63,17 +64,25 @@ run_delphi() {
   echo "$3"
 
   FILENAME=$(basename "$2")
-  PRMFILE="tmp/${FILENAME%.*}.prm"
-  CUBEFILE="$3/${FILENAME%.*}/${FILENAME%.*}.cube"
-  LOGFILE="$3/${FILENAME%.*}/${FILENAME%.*}.log"
+  PRMFILE="tmp/${FILENAME%.*}/delphi-${FILENAME%.*}.prm"
+  CUBEFILE="$3/${FILENAME%.*}/delphi-${FILENAME%.*}.cube"
+  LOGFILE="$3/${FILENAME%.*}/delphi-${FILENAME%.*}.log"
+
+
+  if [ ! -d "tmp/${FILENAME%.*}/" ]
+  then
+    mkdir "tmp/${FILENAME%.*}/"
+  fi
+
+
 
   if [ ! -d "$3/${FILENAME%.*}/" ]
   then
     mkdir "$3/${FILENAME%.*}/"
   fi
 
-  touch $PRMFILE
-  echo > $PRMFILE
+  touch "$PRMFILE"
+  echo > "$PRMFILE"
   touch $LOGFILE
   echo > $LOGFILE
   touch $CUBEFILE
@@ -95,6 +104,45 @@ run_delphi() {
   echo 'energy(s,c,g)' >> $PRMFILE
 
   $DELPHI"/delphicpp_release" $PRMFILE >> $LOGFILE 2>&1
+
+}
+run_apbs() {
+  echo "$1"
+  echo "$2"
+  echo "$3"
+
+  FILENAME=$(basename "$2")
+  LOGFILE="$3/${FILENAME%.*}/apbs-${FILENAME%.*}.log"
+  CUBEFILE="$3/${FILENAME%.*}/apbs-${FILENAME%.*}.cube"
+  #run pdb2pqr
+  if [ ! -d "tmp/${FILENAME%.*}/" ]
+  then
+    mkdir "tmp/${FILENAME%.*}/"
+  fi
+  #$(python3 $PDB2PQR"/pdb2pqr.py" --ff=$1 $2 "tmp/${FILENAME%.*}/${FILENAME%.*}" --apbs-input)
+  $PDB2PQR"/pdb2pqr" --ff=$1 $2 "tmp/${FILENAME%.*}/${FILENAME%.*}" --apbs-input
+  echo "pdb2pqr created apbs input file"
+
+
+  path=$(echo $PWD)
+  INPUTFILE=$path"/tmp/${FILENAME%.*}/${FILENAME%.*}.in"
+  sed -i "s/mol pqr /mol pqr tmp\/${FILENAME%.*}\//" $INPUTFILE
+  #python dx2cube.py
+
+  #INPUTFILE="/home/petra/Desktop/p2rank_dna/electrostatic_potential/tmp/1lfu/1lfu.in"
+
+  $APBS"/apbs" $INPUTFILE
+
+  if [ ! -d "$3/${FILENAME%.*}/" ]
+  then
+    mkdir "$3/${FILENAME%.*}/"
+  fi
+
+  DX2CUBE=$APBS"/../../../pdb2pqr/tools"
+
+  python3 $DX2CUBE"/dx2cube.py" "tmp/${FILENAME%.*}/${FILENAME%.*}.dx" "tmp/${FILENAME%.*}/${FILENAME%.*}" $CUBEFILE
+
+
 
 }
 
@@ -150,10 +198,12 @@ case "$LIBRARY" in
     run_delphi $FORCEFIELD $FILE $OUTPUT
   ;;
   "apbs" )
-    if ! valid_apbs_forcefield
+    if ! valid_apbs_forcefield $FORCEFIELD
     then
       echo "the forcefield does not exist"
       exit
     fi
+
+    run_apbs $FORCEFIELD $FILE $OUTPUT
   ;;
 esac
